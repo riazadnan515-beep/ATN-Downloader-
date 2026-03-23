@@ -94,7 +94,10 @@ export default function App() {
     setVideoData(null);
 
     try {
-      const response = await fetch('/api/fetch', {
+      const isNetlify = window.location.hostname.includes('netlify.app');
+      const apiBase = isNetlify ? '/.netlify/functions' : '/api';
+      
+      const response = await fetch(`${apiBase}/fetch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
@@ -128,13 +131,17 @@ export default function App() {
   const handleDownload = (videoUrl: string, type: 'watermark' | 'no-watermark') => {
     if (!videoData) return;
     
-    const filename = `ATN_${videoData.author}_${videoData.id}_${type}.mp4`;
-    const downloadUrl = `/api/download?url=${encodeURIComponent(videoUrl)}&filename=${encodeURIComponent(filename)}`;
+    const filename = `KTN_${videoData.author}_${videoData.id}_${type}.mp4`;
     
-    // Method 1: Open in new tab (Most reliable for triggering browser download with Content-Disposition)
+    // Check if we're on Netlify or local
+    const isNetlify = window.location.hostname.includes('netlify.app');
+    const apiBase = isNetlify ? '/.netlify/functions' : '/api';
+    const downloadUrl = `${apiBase}/download?url=${encodeURIComponent(videoUrl)}&filename=${encodeURIComponent(filename)}`;
+    
+    // Method 1: Open in new tab
     window.open(downloadUrl, '_blank');
     
-    // Method 2: Create a temporary link and click it (Fallback)
+    // Method 2: Fallback link
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = filename;
@@ -198,7 +205,7 @@ export default function App() {
           <div className="bg-gradient-to-tr from-[#FE2C55] to-[#25F4EE] p-1.5 rounded-lg">
             <Play className="w-5 h-5 text-white fill-current" />
           </div>
-          <h1 className="font-bold text-lg tracking-tight">ATN Downloader</h1>
+          <h1 className="font-bold text-lg tracking-tight">KTN Downloader</h1>
         </div>
         <div className="flex items-center gap-2">
           <button 
